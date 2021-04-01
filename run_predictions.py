@@ -24,27 +24,67 @@ def detect_red_light(I):
     '''
     BEGIN YOUR CODE
     '''
-    
-    '''
-    As an example, here's code that generates between 1 and 5 random boxes
-    of fixed size and returns the results in the proper format.
-    '''
-    
-    box_height = 8
-    box_width = 6
-    
-    num_boxes = np.random.randint(1,5) 
-    
-    for i in range(num_boxes):
-        (n_rows,n_cols,n_channels) = np.shape(I)
-        
-        tl_row = np.random.randint(n_rows - box_height)
-        tl_col = np.random.randint(n_cols - box_width)
-        br_row = tl_row + box_height
-        br_col = tl_col + box_width
-        
-        bounding_boxes.append([tl_row,tl_col,br_row,br_col]) 
-    
+
+    # Use an example traffic light from the first image
+    im = Image.open('./data/RedLights2011_Small/RL-001.jpg')
+    ex_light = im.crop((316, 154, 323, 171))
+    ex_light = np.asarray(ex_light) - 127.5
+
+    # Find the dimensions of the traffic light
+    (lt_rows, lt_cols, lt_channels) = np.shape(ex_light)
+    box_height = lt_rows
+    box_width = lt_cols
+
+    # Find the dimensions of the image I and set threshold
+    (n_rows, n_cols, n_channels) = np.shape(I)
+    threshold = 0.9
+
+    lt_vecs = []
+
+    # For each channel, convert traffic light into normalized vector
+    for i in range(3):
+        lt_ch = ex_light[:, :, i]
+        lt_vec = lt_ch.flatten()
+        lt_norm = np.linalg.norm(lt_vec)
+        if lt_norm != 0:
+            lt_vec = lt_vec / lt_norm
+
+        lt_vecs.append(lt_vec)
+
+    # Go through all patches of this size 
+    for i in range((n_rows - box_height) // 2):
+        # Only check the bottom half of the iamge
+        for j in range(n_cols - box_width):
+            tl_row = i
+            tl_col = j
+            br_row = tl_row + box_height
+            br_col = tl_col + box_width
+            ch_inner_prod = []      
+
+            # Go through each channel
+            for ch in range(3):
+                # Get one channel of the image and the same channel of the light
+                img_ch = I[:, :, ch]
+                lt_vec = lt_vecs[ch]
+
+                # Convert this patch to a normalized vector
+                patch = img_ch[tl_row:br_row, tl_col:br_col]
+                patch_vec = patch.flatten() - 127.5
+                patch_norm = np.linalg.norm(patch_vec)
+                if patch_norm != 0:
+                    patch_vec = patch_vec / patch_norm
+
+                # Take the inner product of the traffic light with a patch.
+                ch_inner_prod.append(np.dot(lt_vec, patch_vec))
+
+            # If it's above the threshold add the box to the bounding boxes.
+            for k in range(3):
+                prod = ch_inner_prod[k]
+                if prod < threshold:
+                    break
+                elif k == 2:
+                    bounding_boxes.append([tl_row, tl_col, br_row, br_col]) 
+
     '''
     END YOUR CODE
     '''
@@ -55,10 +95,10 @@ def detect_red_light(I):
     return bounding_boxes
 
 # set the path to the downloaded data: 
-data_path = '../data/RedLights2011_Medium'
+data_path = './data/RedLights2011_Small'
 
 # set a path for saving predictions: 
-preds_path = '../data/hw01_preds' 
+preds_path = './data/hw01_preds' 
 os.makedirs(preds_path,exist_ok=True) # create directory if needed 
 
 # get sorted list of files: 
