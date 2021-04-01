@@ -52,7 +52,7 @@ def detect_red_light(I):
         lt_vecs.append(lt_vec)
 
     # Go through all patches of this size 
-    for i in range((n_rows - box_height) // 2):
+    for i in range(round(n_rows / 2)):
         # Only check the bottom half of the iamge
         for j in range(n_cols - box_width):
             tl_row = i

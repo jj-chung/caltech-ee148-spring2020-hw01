@@ -20,7 +20,7 @@ def create_visualization():
 			for box in boxes:
 				new_box = [box[1], box[0], box[3], box[2]]
 				draw.rectangle(new_box, outline='white', width=1)
-				f_name = './data/boxed_images/' + img.split('.')[0] + 'boxed.jpg'
-				im.save(f_name, 'JPEG')
+			f_name = './data/boxed_images/' + img.split('.')[0] + 'boxed.jpg'
+			im.save(f_name, 'JPEG')
 
 create_visualization()
