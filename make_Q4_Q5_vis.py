@@ -4,6 +4,9 @@ import json
 from PIL import Image, ImageDraw
 
 def draw_boxes(img_to_box, img_path):
+	'''
+	Draws boxes for images in img_path directory.
+	'''
 
 	# get sorted list of files: 
 	file_names = sorted(os.listdir(img_path)) 
