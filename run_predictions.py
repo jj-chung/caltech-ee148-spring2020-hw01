@@ -311,7 +311,7 @@ def detect_red_light(I):
     BEGIN YOUR CODE
     '''
     
-    bounding_boxes = detect_red_light_match(I, bounding_boxes, name)
+    bounding_boxes = detect_red_light_match(I, bounding_boxes)
     
     '''
     END YOUR CODE
